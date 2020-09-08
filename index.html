@@ -1,0 +1,226 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+    <style>
+        body {
+            margin: 40px;
+            background: lightgray;
+            height: 90vh;
+        }
+
+        #my_canvas {
+            background: white;
+        }
+
+        #prompt {
+            text-align: center;
+            font-size: 30px;
+        }
+
+        #container {
+            margin-top: 100px;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+        }
+
+        img {
+            display: none;
+        }
+
+        .buttons {
+            display: inline-block;
+            color: #444;
+            border: 1px solid #CCC;
+            background: #DDD;
+            box-shadow: 0 0 5px -1px rgba(0, 0, 0, 0.2);
+            cursor: pointer;
+            vertical-align: middle;
+            max-width: 100px;
+            padding: 5px;
+            text-align: center;
+        }
+
+        .buttons:active {
+            color: red;
+            box-shadow: 0 0 5px -1px rgba(0, 0, 0, 0.6);
+        }
+    </style>
+    <script>
+        let pos = 0;
+        let boundary = {};
+        let img = new Image();
+        img.src = "./DSC.png"
+        let rat = img.width / img.height;
+        function selector(p, prompts) {
+            pos = p
+            console.log("gothere")
+            document.getElementById("prompt").innerHTML = prompts[p];
+        }
+        let draw = () => {
+            document.getElementById("canvas").innerHTML = `<canvas id="my_canvas"width="1200" height="${1200 / rat}"></canvas>`
+            let canvas = document.getElementById("my_canvas")
+            let ctx = canvas.getContext("2d");
+            ctx.imageSmoothingEnabled = false;
+            ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
+
+            let prompts = ["Please select the left boundary of the space allocated for the name", "Please select the right boundary of the space allocated for the name", "Please select the bottom boundary of the space allocated for the name"];
+
+            let left_border = document.getElementById("left_border")
+            let right_border = document.getElementById("right_border");
+            let bottom = document.getElementById("bottom");
+            let done = document.getElementById("done");
+            left_border.addEventListener('click', function () {
+                selector(0, prompts)
+                console.log(pos)
+            })
+            right_border.addEventListener('click', function () {
+                selector(1, prompts)
+                console.log(pos)
+            })
+            bottom.addEventListener('click', function () {
+                selector(2, prompts)
+                console.log(pos)
+            })
+            done.addEventListener('click', function () {
+                print(boundary);
+            })
+
+            document.getElementById("prompt").innerHTML = prompts[0];
+            canvas.addEventListener('click', function (event) {
+                getCursorPosition(canvas, event)
+            })
+
+        }
+
+        function getCursorPosition(canvas, event) {
+            const rect = canvas.getBoundingClientRect()
+            const x = event.clientX - rect.left
+            const y = event.clientY - rect.top
+            console.log("x: " + x + " y: " + y)
+            if (pos == 0) {
+                if (boundary.right && x > boundary.right[0]) {
+                    prompt("left boundary must be to the left of right boundary")
+                } else {
+                    boundary.left = [x, y];
+                    mark(boundary);
+                }
+
+                //localStorage.setItem("boundary", JSON.stringify(boundary));
+            } if (pos == 1) {
+                if (boundary.left && x < boundary.left[0]) {
+                    prompt("right boundary must be to the right of left boundary")
+                } else {
+                    boundary.right = [x, y]
+                    mark(boundary);
+                }
+
+                //localStorage.setItem("boundary", JSON.stringify(boundary));
+            } if (pos == 2) {
+                boundary.bottom = [x, y];
+                mark(boundary);
+                // localStorage.setItem("boundary", JSON.stringify(boundary));
+            }
+            //var image = canvas.toDataURL("image/png").replace("image/png", "image/octet-stream"); //Convert image to 'octet-stream' (Just a download, really)
+            //window.location.href = image;
+
+
+        }
+
+        function mark(boundary) {
+            document.getElementById("canvas").innerHTML = `<canvas id="my_canvas"width="1200" height="${1200 / rat}"></canvas>`
+            let canvas = document.getElementById("my_canvas")
+            canvas.addEventListener('click', function (event) {
+                getCursorPosition(canvas, event)
+            })
+            let ctx = canvas.getContext("2d");
+            ctx.imageSmoothingEnabled = false;
+            ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
+
+
+            if (boundary.left) {
+                ctx.beginPath();
+                ctx.moveTo(boundary.left[0], 0);
+                ctx.lineTo(boundary.left[0], canvas.height);
+                ctx.stroke()
+            } if (boundary.right) {
+                ctx.beginPath();
+                ctx.moveTo(boundary.right[0], 0);
+                ctx.lineTo(boundary.right[0], canvas.height);
+                ctx.stroke()
+            }
+            if (boundary.bottom && boundary.left && boundary.right) {
+                ctx.beginPath();
+                ctx.moveTo(boundary.left[0], boundary.bottom[1]);
+                ctx.lineTo(boundary.right[0], boundary.bottom[1]);
+                ctx.stroke()
+            } if (boundary.bottom && boundary.left && !boundary.right) {
+                ctx.beginPath();
+                ctx.moveTo(boundary.left[0], boundary.bottom[1]);
+                ctx.lineTo(canvas.width, boundary.bottom[1]);
+                ctx.stroke()
+            } if (boundary.bottom && boundary.right && !boundary.left) {
+                ctx.beginPath();
+                ctx.moveTo(boundary.right[0], boundary.bottom[1]);
+                ctx.lineTo(0, boundary.bottom[1]);
+                ctx.stroke()
+            } if (boundary.bottom && !boundary.left && !boundary.right) {
+                ctx.beginPath();
+                ctx.moveTo(0, boundary.bottom[1]);
+                ctx.lineTo(canvas.width, boundary.bottom[1]);
+                ctx.stroke()
+            }
+        }
+
+
+        function print(boundary) {
+            if (boundary.right && boundary.left && boundary.bottom) {
+                var person = prompt("Please enter your name", "Lord Bee");
+                boundary.center = (boundary.left[0] + boundary.right[0]) / 2
+                document.getElementById("canvas").innerHTML = `<canvas id="my_canvas"width="1200" height="${1200 / rat}"></canvas>`
+                let canvas = document.getElementById("my_canvas")
+                let ctx = canvas.getContext("2d");
+                ctx.imageSmoothingEnabled = false;
+                ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
+                ctx.font = "30px Verdana";
+                ctx.textAlign = "center";
+                ctx.fillText(person, boundary.center, boundary.bottom[1]);
+                //var image = canvas.toDataURL("image/png").replace("image/png", "image/octet-stream"); //Convert image to 'octet-stream' (Just a download, really)
+            //window.location.href = image;
+            const a=document.createElement("a");
+            a.href=canvas.toDataURL();
+            a.download="canvas-image.png";
+            a.click();
+            document.body.removeChild(a);
+            } else {
+                prompt("select all boundaries");
+            }
+
+        }
+        window.onload = draw;
+    </script>
+</head>
+
+<body>
+    <div id="container">
+        <h3 id="prompt">fill</h3>
+        <div>
+            <div id="left_border" class="buttons">Set left border</div>
+            <div id="right_border" class="buttons">Set right border</div>
+            <div id="bottom" class="buttons">Set the bottom of your text</div>
+            <div id="done" class="buttons">done</div>
+        </div>
+        <div id="canvas"></div>
+    </div>
+
+    <img id="test" src="./DSC.png">
+    <script>
+    </script>
+</body>
+
+</html>
