@@ -74,7 +74,7 @@
             canvascontainer.innerHTML = `<canvas id="my_canvas"width="${width}" height="${width / rat}"></canvas>`
             let canvas = document.getElementById("my_canvas")
             let ctx = canvas.getContext("2d");
-            ctx.imageSmoothingEnabled = false;
+            ctx.imageSmoothingEnabled = true;
             ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
 
             let prompts = ["Please select the left boundary of the space allocated for the name", "Please select the right boundary of the space allocated for the name", "Please select the bottom boundary of the space allocated for the name"];
@@ -239,8 +239,6 @@
         </div>
         <div id="canvas"></div>
     </div>
-
-    <img id="test" src="./DSC.png">
     <script>
     </script>
 </body>
