@@ -41,18 +41,33 @@
             display: inline-block;
             color: #444;
             border: 1px solid #CCC;
-            background: #DDD;
+            background: lightseagreen;
             box-shadow: 0 0 5px -1px rgba(0, 0, 0, 0.2);
             cursor: pointer;
             vertical-align: middle;
             width: 100px;
-            padding: 5px;
+            padding: 10px;
+            border-radius:10%;
             text-align: center;
         }
 
         .buttons:active {
             color: red;
             box-shadow: 0 0 5px -1px rgba(0, 0, 0, 0.6);
+        }
+
+        @media screen and (max-width: 600px) {
+            #container {
+            width: 80%;
+            margin: auto;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+        }
+        .buttons {
+            padding:5px;
+        }
         }
     </style>
     <script>
@@ -235,9 +250,9 @@
     <div id="container">
         <h3 id="prompt">fill</h3>
         <div id="nav">
-            <div id="left_border" class="buttons">Set left border</div>
-            <div id="right_border" class="buttons">Set right border</div>
-            <div id="bottom" class="buttons">Set the bottom of your text</div>
+            <div id="left_border" class="buttons">Left border</div>
+            <div id="right_border" class="buttons">Right border</div>
+            <div id="bottom" class="buttons">Text Base</div>
             <div id="done" class="buttons">done</div>
         </div>
         <div id="canvas"></div>
