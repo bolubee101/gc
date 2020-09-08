@@ -7,7 +7,7 @@
     <title>Document</title>
     <style>
         body {
-            margin: 40px;
+
             background: lightgray;
             height: 90vh;
         }
@@ -22,19 +22,22 @@
         }
 
         #container {
-            width:90vw;
-            margin-top: 100px;
+            width: 60%;
+            margin: auto;
             display: flex;
             flex-direction: column;
             justify-content: center;
             align-items: center;
         }
 
-        img {
-            display: none;
+        #nav {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 1rem;
         }
 
         .buttons {
+            margin-left: 2rem;
             display: inline-block;
             color: #444;
             border: 1px solid #CCC;
@@ -42,7 +45,7 @@
             box-shadow: 0 0 5px -1px rgba(0, 0, 0, 0.2);
             cursor: pointer;
             vertical-align: middle;
-            max-width: 100px;
+            width: 100px;
             padding: 5px;
             text-align: center;
         }
@@ -53,10 +56,10 @@
         }
     </style>
     <script>
-        window.addEventListener("resize", function(){
+        window.addEventListener("resize", function () {
             draw();
             mark(boundary);
-            print(boundary);
+            //print(boundary);
         });
         let pos = 0;
         let boundary = {};
@@ -69,7 +72,7 @@
             document.getElementById("prompt").innerHTML = prompts[p];
         }
         let draw = () => {
-            let canvascontainer=document.getElementById("canvas");
+            let canvascontainer = document.getElementById("canvas");
             let width = document.getElementById('container').offsetWidth;
             canvascontainer.innerHTML = `<canvas id="my_canvas"width="${width}" height="${width / rat}"></canvas>`
             let canvas = document.getElementById("my_canvas")
@@ -109,11 +112,11 @@
         function getCursorPosition(canvas, event) {
             const rect = canvas.getBoundingClientRect()
             let width = document.getElementById('container').offsetWidth;
-            let height = width/rat;
+            let height = width / rat;
             let x = event.clientX - rect.left
             let y = event.clientY - rect.top
-            x=x/width;
-            y=y/height;
+            x = x / width;
+            y = y / height;
             console.log("x: " + x + " y: " + y)
             if (pos == 0) {
                 if (boundary.right && x > boundary.right[0]) {
@@ -143,12 +146,12 @@
         }
 
         function mark(boundary) {
-            let canvascontainer=document.getElementById("canvas");
+            let canvascontainer = document.getElementById("canvas");
             let width = document.getElementById('container').offsetWidth;
-            let height=width / rat
+            let height = width / rat
             canvascontainer.innerHTML = `<canvas id="my_canvas"width="${width}" height="${height}"></canvas>`
             let canvas = document.getElementById("my_canvas")
-            height=canvas.height;
+            height = canvas.height;
             canvas.addEventListener('click', function (event) {
                 getCursorPosition(canvas, event)
             })
@@ -159,34 +162,34 @@
 
             if (boundary.left) {
                 ctx.beginPath();
-                ctx.moveTo(boundary.left[0]*width, 0);
-                ctx.lineTo(boundary.left[0]*width, canvas.height);
+                ctx.moveTo(boundary.left[0] * width, 0);
+                ctx.lineTo(boundary.left[0] * width, canvas.height);
                 ctx.stroke()
             } if (boundary.right) {
                 ctx.beginPath();
-                ctx.moveTo(boundary.right[0]*width, 0);
-                ctx.lineTo(boundary.right[0]*width, canvas.height);
+                ctx.moveTo(boundary.right[0] * width, 0);
+                ctx.lineTo(boundary.right[0] * width, canvas.height);
                 ctx.stroke()
             }
             if (boundary.bottom && boundary.left && boundary.right) {
                 ctx.beginPath();
-                ctx.moveTo(boundary.left[0]*width, boundary.bottom[1]*height);
-                ctx.lineTo(boundary.right[0]*width, boundary.bottom[1]*height);
+                ctx.moveTo(boundary.left[0] * width, boundary.bottom[1] * height);
+                ctx.lineTo(boundary.right[0] * width, boundary.bottom[1] * height);
                 ctx.stroke()
             } if (boundary.bottom && boundary.left && !boundary.right) {
                 ctx.beginPath();
-                ctx.moveTo(boundary.left[0]*width, boundary.bottom[1]*height);
-                ctx.lineTo(canvas.width, boundary.bottom[1]*height);
+                ctx.moveTo(boundary.left[0] * width, boundary.bottom[1] * height);
+                ctx.lineTo(canvas.width, boundary.bottom[1] * height);
                 ctx.stroke()
             } if (boundary.bottom && boundary.right && !boundary.left) {
                 ctx.beginPath();
-                ctx.moveTo(boundary.right[0]*width, boundary.bottom[1]*height);
-                ctx.lineTo(0, boundary.bottom[1]*height);
+                ctx.moveTo(boundary.right[0] * width, boundary.bottom[1] * height);
+                ctx.lineTo(0, boundary.bottom[1] * height);
                 ctx.stroke()
             } if (boundary.bottom && !boundary.left && !boundary.right) {
                 ctx.beginPath();
-                ctx.moveTo(0, boundary.bottom[1]*height);
-                ctx.lineTo(canvas.width, boundary.bottom[1]*height);
+                ctx.moveTo(0, boundary.bottom[1] * height);
+                ctx.lineTo(canvas.width, boundary.bottom[1] * height);
                 ctx.stroke()
             }
         }
@@ -196,8 +199,8 @@
             if (boundary.right && boundary.left && boundary.bottom) {
                 let width = document.getElementById('container').offsetWidth;
                 let person = prompt("Please enter your name", "Lord Bee");
-                let center = (boundary.left[0]*width + boundary.right[0]*width) / 2
-                let center2 = (boundary.left[0]*1200 + boundary.right[0]*1200) / 2
+                let center = (boundary.left[0] * width + boundary.right[0] * width) / 2
+                let center2 = (boundary.left[0] * 1200 + boundary.right[0] * 1200) / 2
                 document.getElementById("canvas").innerHTML = `<canvas id="my_canvas"width="${width}" height="${width / rat}"></canvas>`
                 document.getElementById("canvas").innerHTML += `<canvas id="print"width="1200" height="${1200 / rat}"style="display:none;"></canvas>`
                 let canvas = document.getElementById("my_canvas");
@@ -212,8 +215,8 @@
                 ctx2.font = "30px Verdana";
                 ctx.textAlign = "center";
                 ctx2.textAlign = "center";
-                ctx.fillText(person, center, boundary.bottom[1]*(width/rat));
-                ctx2.fillText(person, center2, boundary.bottom[1]*(1200/rat));
+                ctx.fillText(person, center, boundary.bottom[1] * (width / rat));
+                ctx2.fillText(person, center2, boundary.bottom[1] * (1200 / rat));
                 const a = document.createElement("a");
                 a.href = canvas2.toDataURL();
                 a.download = "canvas-image.png";
@@ -231,7 +234,7 @@
 <body>
     <div id="container">
         <h3 id="prompt">fill</h3>
-        <div>
+        <div id="nav">
             <div id="left_border" class="buttons">Set left border</div>
             <div id="right_border" class="buttons">Set right border</div>
             <div id="bottom" class="buttons">Set the bottom of your text</div>
