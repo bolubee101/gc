@@ -16,12 +16,9 @@
             background: white;
         }
 
-        #prompt {
-            text-align: center;
-            font-size: 30px;
-        }
-
         #container {
+            position: relative;
+            padding-top: 5%;
             width: 60%;
             margin: auto;
             display: flex;
@@ -30,18 +27,12 @@
             align-items: center;
         }
 
-        #nav {
-            display: flex;
-            justify-content: space-between;
-            margin-bottom: 1rem;
-        }
-
         .buttons {
             margin: auto;
             display: inline-block;
-            color: #444;
+            color: black;
             border: 1px solid #CCC;
-            background: lightseagreen;
+            background: gray;
             box-shadow: 0 0 5px -1px rgba(0, 0, 0, 0.2);
             cursor: pointer;
             vertical-align: middle;
@@ -56,6 +47,18 @@
             box-shadow: 0 0 5px -1px rgba(0, 0, 0, 0.6);
         }
 
+        input[type=text] {
+            position:absolute;
+            bottom:20px;
+            width: 50%;
+            padding: 12px 20px;
+            margin: 8px 0;
+            display: inline-block;
+            border: 10px solid black;
+            border-radius: 4px;
+            box-sizing: border-box;
+        }
+
         @media screen and (max-width: 900px) {
             #container {
                 width: 95%;
@@ -65,40 +68,25 @@
                 justify-content: center;
                 align-items: center;
             }
-
-            #nav {
-                display: flex;
-                justify-content: center;
-                margin-bottom: 1rem;
-            }
         }
     </style>
     <script>
         window.addEventListener("resize", function () {
+           if(img.src){
             draw();
-            mark(boundary);
-            if (pos == 3) {
-                check(boundary);
-            }
+           }
+            
 
         });
-        let prompts = ["Please select the left boundary of the space allocated for the name", "Please select the right boundary of the space allocated for the name", "Please select the bottom boundary of the space allocated for the name", "hold"];
-        let person;
-        let pos = 0;
 
-        // The boundary object to store the x and y coordinates of the text area boundaries for left, right and bottom
         let boundary = {};
+        boundary.color = "black";
         // Initializing a new image and assigning it to a source
         let img = new Image();
-        img.src = "./DSC.png"
         // calculating the image width to height ratio to enable proper scaling of canvas dimensions irrespective of screen size 
         var rat
         // This function changes the content of the prompt heading that guides users on how to select boundaries 
-        function selector(p, prompts) {
-            pos = p
-            console.log("gothere")
-            document.getElementById("prompt").innerHTML = prompts[p];
-        }
+
         // This function creates the canvas element and draws the image inside it. 
         let draw = () => {
             let canvascontainer = document.getElementById("canvas");
@@ -110,44 +98,8 @@
             ctx.imageSmoothingEnabled = true;
             ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
         }
-        // This function returns the normalized coordinates of mouse clicks made on the canvas. These coordinates are used to mark the boundaries of the text
-        function getCursorPosition(canvas, event) {
-            const rect = canvas.getBoundingClientRect()
-            let width = document.getElementById('container').offsetWidth;
-            let height = width / rat;
-            let x = event.clientX - rect.left
-            let y = event.clientY - rect.top
-            x = x / width;
-            y = y / height;
-            console.log("x: " + x + " y: " + y)
-            if (pos == 0) {
-                if (boundary.right && x > boundary.right[0]) {
-                    prompt("left boundary must be to the left of right boundary")
-                } else {
-                    boundary.left = [x, y];
-                    mark(boundary);
-                }
 
-                //localStorage.setItem("boundary", JSON.stringify(boundary));
-            } if (pos == 1) {
-                if (boundary.left && x < boundary.left[0]) {
-                    prompt("right boundary must be to the right of left boundary")
-                } else {
-                    boundary.right = [x, y]
-                    mark(boundary);
-                }
-
-                //localStorage.setItem("boundary", JSON.stringify(boundary));
-            } if (pos == 2) {
-                boundary.bottom = [x, y];
-                mark(boundary);
-                // localStorage.setItem("boundary", JSON.stringify(boundary));
-            }
-
-
-        }
-
-        function mark(boundary) {
+        function mark() {
             let canvascontainer = document.getElementById("canvas");
             let width = document.getElementById('container').offsetWidth;
             let height = width / rat
@@ -197,8 +149,10 @@
         }
 
         // This function writes the name on the canvas scaled to the display screen, while at the same time, creating a hidden canvas with the same dimensions as the template provided and writes the name to it 
-        function check(boundary) {
+        function realcheck() {
             if (boundary.right && boundary.left && boundary.bottom) {
+                var value = String(document.getElementById('name').value);
+            boundary.name=value;
                 let width = document.getElementById('container').offsetWidth;
                 let center = (boundary.left[0] * width + boundary.right[0] * width) / 2
                 let center2 = (boundary.left[0] * img.width + boundary.right[0] * img.width) / 2
@@ -213,19 +167,22 @@
                 ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
                 ctx2.drawImage(img, 0, 0, canvas2.width, canvas2.height);
                 // would later add dynamic font change
-                let font = (30 * width) / 1264;
-                ctx.font = `${font}px Verdana`;
-                ctx2.font = "30px Verdana";
+                //let font = (30 * width) / 1264;
+                ctx.font = `${boundary.fontsize * canvas.height}px Verdana`;
+                ctx.fillStyle = boundary.color;
+                ctx2.font = `${boundary.fontsize * canvas2.height}px Verdana`;
+                ctx2.fillStyle = boundary.color;
                 ctx.textAlign = "center";
                 ctx2.textAlign = "center";
-                ctx.fillText(person, center, boundary.bottom[1] * (width / rat));
-                ctx2.fillText(person, center2, boundary.bottom[1] * img.height);
+                ctx.fillText(boundary.name, center, boundary.bottom[1] * (width / rat));
+                ctx2.fillText(boundary.name, center2, boundary.bottom[1] * img.height);
 
-            } else {
-                pos=0;
-                prompt("select all boundaries");
             }
-
+        }
+        function check() {
+            if (boundary.right && boundary.left && boundary.bottom) {
+                realcheck();
+            }
         }
         // This function enables the download of the certificate
         function downloadfunc() {
@@ -236,46 +193,17 @@
                 a.download = "canvas-image.png";
                 a.click();
                 document.body.removeChild(a);
-            } else {
-                prompt("select all boundaries");
             }
-
         }
         // On start, the canvas is drawn, and the various event listeners for the boundary selectors are initializes
         function start() {
             rat = img.width / img.height;
             draw();
-            let left_border = document.getElementById("left_border")
-            let right_border = document.getElementById("right_border");
-            let bottom = document.getElementById("bottom");
-            let done = document.getElementById("done");
+            check();
             let download = document.getElementById("download");
-            left_border.addEventListener('click', function () {
-                selector(0, prompts)
-                console.log(pos)
-            })
-            right_border.addEventListener('click', function () {
-                selector(1, prompts)
-                console.log(pos)
-            })
-            bottom.addEventListener('click', function () {
-                selector(2, prompts)
-                console.log(pos)
-            })
-            done.addEventListener('click', function () {
-                selector(3, prompts)
-                person = prompt("Please enter your name", "Lord Bee");
-                check(boundary);
-            });
             download.addEventListener('click', function () {
-                downloadfunc(boundary);
+                downloadfunc();
             })
-
-            document.getElementById("prompt").innerHTML = prompts[0];
-            canvas.addEventListener('click', function (event) {
-                getCursorPosition(canvas, event)
-            })
-
         }
         img.onload = start;
 
@@ -284,18 +212,30 @@
 
 <body>
     <div id="container">
-        <h3 id="prompt">fill</h3>
-        <div id="nav">
-            <div id="left_border" class="buttons">Left border</div>
-            <div id="right_border" class="buttons">Right border</div>
-            <div id="bottom" class="buttons">Text Base</div>
-            <div id="done" class="buttons">check</div>
-        </div>
-        <div id="canvas"></div>
         <div id="download" class="buttons">download</div>
+        <div id="canvas"></div>
         <div id="download-div"></div>
+        <input type="text" name="name" id="name" value="input your name"oninput="myFunction()">
     </div>
     <script>
+        function myFunction(){
+            var value = String(document.getElementById('name').value);
+            boundary.name=value;
+            realcheck();
+        }
+
+        var xhttp = new XMLHttpRequest();
+          xhttp.open("GET", "/details", false);
+          xhttp.setRequestHeader("Content-Type", "application/json");
+          xhttp.onreadystatechange = function () {
+            if (this.readyState == 4 && this.status == 200) {
+                boundary=JSON.parse(this.responseText)
+                img.src = boundary.src;
+            }
+          };
+xhttp.send();
+
+
     </script>
 </body>
 
